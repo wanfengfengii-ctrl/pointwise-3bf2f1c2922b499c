@@ -1,5 +1,3 @@
-from itertools import product
-
 from snapshots.rows import LedgerError, ordered_items, require_text
 
 
@@ -17,8 +15,5 @@ def resolve_columns(row_keys: tuple[str, ...], keys) -> tuple[int, ...]:
 
 def project_joint_rows(states: tuple[tuple[int, ...], ...],
                        columns: tuple[int, ...]) -> list[tuple[int, ...]]:
-    unique_columns = tuple(dict.fromkeys(columns))
-    domains = [sorted({state[column] for state in states}) for column in unique_columns]
-    positions = {column: index for index, column in enumerate(unique_columns)}
-    request = tuple(positions[column] for column in columns)
-    return sorted(tuple(choice[index] for index in request) for choice in product(*domains))
+    """按请求列序（保留重复列）投影每条同表共现状态，整元组去重后按字典序排列。"""
+    return sorted({tuple(state[column] for column in columns) for state in states})
